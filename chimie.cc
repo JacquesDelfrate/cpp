@@ -30,45 +30,41 @@ public:
 	double getVolume() const { return volume; }
 	double getPh() const { return pH; }	
 		
-	ostream& etiquette(ostream& sortie) const{
-		sortie << getNom() << " : " << getVolume() << " ml, pH " << getPh();
-	
-		return sortie;	
-	}
-	
-	//~ ostream& operator<<(ostream& sortie, Flacon const& flacon) {	
-		//~ return flacon.etiquette(cout);
-	//~ }
-	
-	const Flacon operator+(Flacon flacon) const{
+	ostream& etiquette(ostream& sortie) const;	
 		
-		double nouveauPh = -log10((getVolume() * pow(10.0, -getPh()) + flacon.getVolume() * pow(10.0, -flacon.getPh())) / 
-			(getVolume() + flacon.getVolume()));
-		
-		Flacon nouveauFlacon(getNom() + " + " + flacon.getNom(), getVolume() + flacon.getVolume(), nouveauPh);
-		
-		return nouveauFlacon;
-	}	
+	const Flacon operator+(Flacon flacon) const;
 	
-	void operator+=(Flacon const& flacon) {
-		double nouveauPh = -log10((getVolume() * pow(10.0, -getPh()) + flacon.getVolume() * pow(10.0, -flacon.getPh())) / 
-			(getVolume() + flacon.getVolume()));
-			
-		setNom(getNom() + " + " + flacon.getNom());
-		setVol(getVolume() + flacon.getVolume());
-		setPh(nouveauPh);
-	}
+	void operator+=(Flacon const& flacon);
 };
+
+void Flacon::operator+=(Flacon const& flacon) {
+	double nouveauPh = -log10((volume * pow(10.0, -pH) + flacon.volume * pow(10.0, -flacon.pH)) / 
+		(volume + flacon.volume));
+		
+	setNom(nom + " + " + flacon.nom);
+	setVol(volume + flacon.volume);
+	setPh(nouveauPh);
+}
+
+const Flacon Flacon::operator+(Flacon flacon) const{
+	
+	double nouveauPh = -log10((volume * pow(10.0, -pH) + flacon.volume * pow(10.0, -flacon.pH)) / 
+		(volume + flacon.volume));
+	
+	Flacon nouveauFlacon(nom + " + " + flacon.nom, volume + flacon.volume, nouveauPh);
+	
+	return nouveauFlacon;
+}	
+
+ostream& Flacon::etiquette(ostream& sortie) const{
+	sortie << nom << " : " << volume << " ml, pH " << pH;
+
+	return sortie;	
+}
+
 ostream& operator<<(ostream& sortie, Flacon const& flacon) {	
 	return flacon.etiquette(cout);
 }
-
-//~ const Flacon operator+(Flacon flacon1, Flacon const& flacon2){
-	//~ Flacon nouveauFlacon(flacon1.getNom() + " + " + flacon2.getNom(), 
-		//~ flacon1.getVolume() + flacon2.getVolume(), flacon1.getPh() + flacon2.getPh());
-	
-	//~ return nouveauFlacon;
-//~ }
 
 /*******************************************
  * Ne rien modifier après cette ligne.
