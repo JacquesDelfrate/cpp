@@ -22,11 +22,13 @@ public:
 		pH = a;
 	}
 
+	void setNom(string nouveauNom) { nom = nouveauNom; }
+	void setVol(double nouveauVol) { volume = nouveauVol; }
+	void setPh(double nouveauPh) { pH = nouveauPh; }
+
 	string getNom() const { return nom; }
-	
 	double getVolume() const { return volume; }
-	
-	double getPh() const { return pH; }
+	double getPh() const { return pH; }	
 		
 	ostream& etiquette(ostream& sortie) const{
 		sortie << getNom() << " : " << getVolume() << " ml, pH " << getPh();
@@ -48,12 +50,13 @@ public:
 		return nouveauFlacon;
 	}	
 	
-	Flacon& operator+=(Flacon const& flacon){
-		double nouveauPh = -log10((getVolume() * pow(10.0, -getPh()) + flacon.getVolume() * pow(10.0, -flacon.getPh())) / (getVolume() + flacon.getVolume()));
-		
-		Flacon nouveauFlacon(getNom() + " + " + flacon.getNom(), getVolume() + flacon.getVolume(), nouveauPh);
-		
-		return nouveauFlacon;
+	void operator+=(Flacon const& flacon) {
+		double nouveauPh = -log10((getVolume() * pow(10.0, -getPh()) + flacon.getVolume() * pow(10.0, -flacon.getPh())) / 
+			(getVolume() + flacon.getVolume()));
+			
+		setNom(getNom() + " + " + flacon.getNom());
+		setVol(getVolume() + flacon.getVolume());
+		setPh(nouveauPh);
 	}
 };
 ostream& operator<<(ostream& sortie, Flacon const& flacon) {	
@@ -79,7 +82,6 @@ void afficher_melange(Flacon const& f1, Flacon const& f2)
   cout << "\t\"" << f2 << "\"" << endl;
   cout << "j'obtiens :" << endl;
   cout << "\t\"" << (f1 + f2) << "\"" << endl;
-  f1+=f2;
 }
 
 int main()
@@ -87,7 +89,7 @@ int main()
   Flacon flacon1("Eau", 600.0, 7.0);
   Flacon flacon2("Acide chlorhydrique", 500.0, 2.0);
   Flacon flacon3("Acide perchlorique",  800.0, 1.5);
-
+  
   afficher_melange(flacon1, flacon2);
   afficher_melange(flacon2, flacon3);
 
