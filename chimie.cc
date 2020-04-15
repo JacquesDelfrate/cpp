@@ -21,15 +21,7 @@ public:
 		volume = v;
 		pH = a;
 	}
-
-	void setNom(string nouveauNom) { nom = nouveauNom; }
-	void setVol(double nouveauVol) { volume = nouveauVol; }
-	void setPh(double nouveauPh) { pH = nouveauPh; }
-
-	string getNom() const { return nom; }
-	double getVolume() const { return volume; }
-	double getPh() const { return pH; }	
-		
+			
 	ostream& etiquette(ostream& sortie) const;	
 		
 	const Flacon operator+(Flacon flacon) const;
@@ -38,16 +30,13 @@ public:
 };
 
 void Flacon::operator+=(Flacon const& flacon) {
-	double nouveauPh = -log10((volume * pow(10.0, -pH) + flacon.volume * pow(10.0, -flacon.pH)) / 
+	nom = nom + " + " + flacon.nom;
+	volume = volume + flacon.volume;
+	pH = -log10((volume * pow(10.0, -pH) + flacon.volume * pow(10.0, -flacon.pH)) / 
 		(volume + flacon.volume));
-		
-	setNom(nom + " + " + flacon.nom);
-	setVol(volume + flacon.volume);
-	setPh(nouveauPh);
 }
 
 const Flacon Flacon::operator+(Flacon flacon) const{
-	
 	double nouveauPh = -log10((volume * pow(10.0, -pH) + flacon.volume * pow(10.0, -flacon.pH)) / 
 		(volume + flacon.volume));
 	
@@ -85,7 +74,7 @@ int main()
   Flacon flacon1("Eau", 600.0, 7.0);
   Flacon flacon2("Acide chlorhydrique", 500.0, 2.0);
   Flacon flacon3("Acide perchlorique",  800.0, 1.5);
-  
+
   afficher_melange(flacon1, flacon2);
   afficher_melange(flacon2, flacon3);
 
