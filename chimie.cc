@@ -14,6 +14,7 @@ public:
   /*****************************************************
     Compléter le code à partir d'ici
   *******************************************************/
+  # define BONUS
 	Flacon (string n, double v, double a)
 	{
 		nom = n;
@@ -33,14 +34,29 @@ public:
 		return sortie;	
 	}
 	
+	//~ ostream& operator<<(ostream& sortie, Flacon const& flacon) {	
+		//~ return flacon.etiquette(cout);
+	//~ }
+	
 	const Flacon operator+(Flacon flacon) const{
-		Flacon nouveauFlacon(getNom() + " + " + flacon.getNom(), 
-			getVolume() + flacon.getVolume(), getPh() + flacon.getPh());
+		
+		double nouveauPh = -log10((getVolume() * pow(10.0, -getPh()) + flacon.getVolume() * pow(10.0, -flacon.getPh())) / 
+			(getVolume() + flacon.getVolume()));
+		
+		Flacon nouveauFlacon(getNom() + " + " + flacon.getNom(), getVolume() + flacon.getVolume(), nouveauPh);
+		
+		return nouveauFlacon;
+	}	
+	
+	Flacon& operator+=(Flacon const& flacon){
+		double nouveauPh = -log10((getVolume() * pow(10.0, -getPh()) + flacon.getVolume() * pow(10.0, -flacon.getPh())) / (getVolume() + flacon.getVolume()));
+		
+		Flacon nouveauFlacon(getNom() + " + " + flacon.getNom(), getVolume() + flacon.getVolume(), nouveauPh);
 		
 		return nouveauFlacon;
 	}
 };
-ostream& operator<<(ostream& sortie, Flacon flacon) {	
+ostream& operator<<(ostream& sortie, Flacon const& flacon) {	
 	return flacon.etiquette(cout);
 }
 
@@ -63,6 +79,7 @@ void afficher_melange(Flacon const& f1, Flacon const& f2)
   cout << "\t\"" << f2 << "\"" << endl;
   cout << "j'obtiens :" << endl;
   cout << "\t\"" << (f1 + f2) << "\"" << endl;
+  f1+=f2;
 }
 
 int main()
