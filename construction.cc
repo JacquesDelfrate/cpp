@@ -23,19 +23,17 @@ public:
 		 couleur = c;
 	 }
 	 
-	 Forme getForme() const { return forme; }
-	 Couleur getCouleur() const { return couleur; }
-
- 	ostream& afficher(ostream& sortie) const{
-		if (getCouleur() == ""){
-			sortie << getForme();
-		}else{
-			sortie << "(" << getForme() << ", " << getCouleur() << ")";
-		}
-		
-		return sortie;	
-	}
+	 ostream& afficher(ostream& sortie) const;
 };
+ostream& Brique::afficher(ostream& sortie) const{
+	if (couleur == ""){
+		sortie << forme;
+	}else{
+		sortie << "(" << forme << ", " << couleur << ")";
+	}
+	
+	return sortie;	
+}
 
 ostream& operator<<(ostream& sortie, Brique const& brique) {	
 	return brique.afficher(cout);
@@ -51,18 +49,60 @@ class Construction
 		contenu.push_back(vector<vector<Brique>>());
 		contenu[0].push_back(vector<Brique>());
 		contenu[0][0].push_back(b);
+	}
 		
-		cout << contenu.size() << endl;
-		cout << contenu[0].size() << endl;
-		cout << contenu[0][0].size() << endl;
+	ostream& afficher(ostream& sortie) const;
+	
+	const Construction operator^=(Construction const& construction);
+};
+
+const Construction Construction::operator^=(Construction const& construction) {
+	Brique b = construction.contenu[0][0].at(0);
+	
+	contenu.push_back(construction.contenu.at(0));
+	contenu.push_back(construction.contenu.at(0));
+	
+	cout << contenu[0][0].at(0) << endl;
+	cout << contenu[0][0].at(1) << endl;
+	
+	cout << contenu[1][0].at(0) << endl;
+	cout << contenu[1][0].at(1) << endl;
+	
+	cout << contenu[2][0].at(0) << endl;
+	cout << contenu[2][0].at(1) << endl;
+	//~ contenu[0].push_back(construction.contenu[0].at(0));
+	//~ contenu[0].push_back(construction.contenu[0].at(0));
+	//~ contenu[0].push_back(construction.contenu[0].at(0));
+	//~ contenu[0].push_back(construction.contenu[0].at(0));
+	
+	contenu[0][0].push_back(construction.contenu[0][0].at(0));
+	
+	cout << contenu[0][0].at(0) << endl;
+	cout << contenu[0][0].at(1) << endl;
+	//~ cout << contenu[0][0].at(2) << endl;
+
+	
+	cout << "size i : " << contenu.size() << endl;
+	cout << "size j : " << contenu[0].size() << endl;
+	cout << "size k : " << contenu[0][0].size() << endl;
+	
+	return *this;
+}
+
+ostream& Construction::afficher(ostream& sortie) const{
+	
+	for (unsigned int i = 0; i < contenu.size(); i++){
+		cout << "i " << i;
+		//~ cout << "couche " << i << " :" << endl;
+		for (unsigned int k = 0; k < contenu[0][0].size(); k++){
+			cout << "k " << k;
+			sortie << contenu[i][0].at(k);
+		}
+		cout << endl;
 	}
 	
-	ostream& afficher(ostream& sortie) const{
-		sortie << contenu[0][0].at(0);
-		
-		return sortie;	
-	}
-};
+	return sortie;	
+}
 
 ostream& operator<<(ostream& sortie, Construction const& contenu) {	
 	return contenu.afficher(cout);
@@ -90,10 +130,13 @@ int main()
   Brique toitD("obliqueD", "rouge");
   Brique toitG("obliqueG", "rouge");
   Brique toitM(" pleine ", "rouge");
-  Brique mur  (" pleine ", "blanc");
+  Brique mur(" pleine ", "blanc");
   Brique vide ("                 ", "");
-	Construction test(mur);
-	cout << test << endl;
+	Construction mur_construction(mur);
+	Construction toit(toitM);
+	//~ cout << test << endl;
+	mur_construction^=toitM;
+	//~ cout << mur_construction << endl;
   //~ unsigned int largeur(4);
   //~ unsigned int profondeur(3);
   //~ unsigned int hauteur(3); // sans le toit
