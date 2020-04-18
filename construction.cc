@@ -57,20 +57,25 @@ class Construction
 };
 
 const Construction Construction::operator^=(Construction construction) {
+	cout << "Construction contenu : " << endl;
+	cout << "size i : " << construction.contenu.size() << endl;
+	cout << "size j : " << construction.contenu[0].size() << endl;
+	cout << "size k : " << construction.contenu[0][0].size() << endl;
+		
+	construction.contenu[0].push_back(construction.contenu[0].at(0));
+	//~ construction.contenu[0].push_back(construction.contenu[0].at(0));
 	
 	construction.contenu[0][0].push_back(construction.contenu[0][0].at(0));
 	construction.contenu[0][0].push_back(construction.contenu[0][0].at(0)); 
 	
-	//~ contenu.push_back(construction.contenu.at(0));
-	//~ contenu.push_back(construction.contenu.at(0));
+	cout << construction.contenu[0][1].at(2) << endl; 
 	
-	//~ contenu[0].push_back(construction.contenu[0].at(0));
-	//~ contenu[0].push_back(construction.contenu[0].at(0));
-	//~ contenu[0].push_back(construction.contenu[0].at(0));
-	//~ contenu[0].push_back(construction.contenu[0].at(0));
-	
-	//~ contenu[0][0].push_back(construction.contenu[0][0].at(0));
-	
+	cout << "size i : " << construction.contenu.size() << endl;
+	cout << "size j : " << construction.contenu[0].size() << endl;
+	cout << "size k : " << construction.contenu[0][0].size() << endl;
+
+	cout << "Contenu : " << endl;
+
 	cout << "size i : " << contenu.size() << endl;
 	cout << "size j : " << contenu[0].size() << endl;
 	cout << "size k : " << contenu[0][0].size() << endl;
@@ -84,37 +89,16 @@ const Construction Construction::operator^=(Construction construction) {
 	}
 	
 	// add constructions
-	//~ for (unsigned int i = 0; i < contenu.size(); i++){
-		//~ contenu.push_back(construction.contenu.at(i));
-		//~ for (unsigned int k = 0;  k < contenu[0][0].size(); k++){
-			//~ contenu[i][0].push_back(construction.contenu[0][0].at(k));
-		//~ }
-	//~ }
-	
-	contenu.push_back(construction.contenu.at(0));
-	//~ contenu[0][0].push_back(construction.contenu[0][0].at(0));
-	
-	
-		
+	for (unsigned int i = 0; i < construction.contenu.size(); i++){
+		contenu.push_back(construction.contenu.at(i));
+	}	
+	for (unsigned int j = 0; j < construction.contenu[0].size(); j++){
+		contenu[0].push_back(construction.contenu[0].at(j));
+	}	
 	cout << "size i : " << contenu.size() << endl;
 	cout << "size j : " << contenu[0].size() << endl;
 	cout << "size k : " << contenu[0][0].size() << endl;
-	
-	//~ cout << "Couche : 1" << endl;
-	//~ cout << contenu[1][0].at(0) << " ";
-	//~ cout << contenu[1][0].at(1) << " ";
-	//~ cout << contenu[1][0].at(2) << endl;
-	//~ cout << "Couche : 0" << endl;
-	//~ cout << contenu[0][0].at(0) << " ";
-	//~ cout << contenu[0][0].at(1) << " ";
-	//~ cout << contenu[0][0].at(2) << endl;
-	
-	//~ cout << contenu[2][0].at(0) << endl;
-	//~ cout << contenu[2][0].at(1) << endl;
-	//~ cout << contenu[0][0].at(2) << endl;
 
-
-	
 	return *this;
 }
 
