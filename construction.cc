@@ -53,49 +53,75 @@ class Construction
 		
 	ostream& afficher(ostream& sortie) const;
 	
-	const Construction operator^=(Construction const& construction);
+	const Construction operator^=(Construction construction);
 };
 
-const Construction Construction::operator^=(Construction const& construction) {
-	Brique b = construction.contenu[0][0].at(0);
+const Construction Construction::operator^=(Construction construction) {
 	
-	contenu.push_back(construction.contenu.at(0));
-	contenu.push_back(construction.contenu.at(0));
+	construction.contenu[0][0].push_back(construction.contenu[0][0].at(0));
+	construction.contenu[0][0].push_back(construction.contenu[0][0].at(0)); 
 	
-	cout << contenu[0][0].at(0) << endl;
-	cout << contenu[0][0].at(1) << endl;
+	//~ contenu.push_back(construction.contenu.at(0));
+	//~ contenu.push_back(construction.contenu.at(0));
 	
-	cout << contenu[1][0].at(0) << endl;
-	cout << contenu[1][0].at(1) << endl;
-	
-	cout << contenu[2][0].at(0) << endl;
-	cout << contenu[2][0].at(1) << endl;
 	//~ contenu[0].push_back(construction.contenu[0].at(0));
 	//~ contenu[0].push_back(construction.contenu[0].at(0));
 	//~ contenu[0].push_back(construction.contenu[0].at(0));
 	//~ contenu[0].push_back(construction.contenu[0].at(0));
 	
-	contenu[0][0].push_back(construction.contenu[0][0].at(0));
-	
-	cout << contenu[0][0].at(0) << endl;
-	cout << contenu[0][0].at(1) << endl;
-	//~ cout << contenu[0][0].at(2) << endl;
-
+	//~ contenu[0][0].push_back(construction.contenu[0][0].at(0));
 	
 	cout << "size i : " << contenu.size() << endl;
 	cout << "size j : " << contenu[0].size() << endl;
 	cout << "size k : " << contenu[0][0].size() << endl;
 	
+	// Padding with empty brique to avoid memory error
+	if (construction.contenu[0][0].size() > contenu[0][0].size()){
+		int padding = construction.contenu[0][0].size() - contenu[0][0].size();
+		for (int p = 0; p < padding; p++){
+			contenu[0][0].push_back(Brique ("                 ", ""));
+		}
+	}
+	
+	// add constructions
+	//~ for (unsigned int i = 0; i < contenu.size(); i++){
+		//~ contenu.push_back(construction.contenu.at(i));
+		//~ for (unsigned int k = 0;  k < contenu[0][0].size(); k++){
+			//~ contenu[i][0].push_back(construction.contenu[0][0].at(k));
+		//~ }
+	//~ }
+	
+	contenu.push_back(construction.contenu.at(0));
+	//~ contenu[0][0].push_back(construction.contenu[0][0].at(0));
+	
+	
+		
+	cout << "size i : " << contenu.size() << endl;
+	cout << "size j : " << contenu[0].size() << endl;
+	cout << "size k : " << contenu[0][0].size() << endl;
+	
+	//~ cout << "Couche : 1" << endl;
+	//~ cout << contenu[1][0].at(0) << " ";
+	//~ cout << contenu[1][0].at(1) << " ";
+	//~ cout << contenu[1][0].at(2) << endl;
+	//~ cout << "Couche : 0" << endl;
+	//~ cout << contenu[0][0].at(0) << " ";
+	//~ cout << contenu[0][0].at(1) << " ";
+	//~ cout << contenu[0][0].at(2) << endl;
+	
+	//~ cout << contenu[2][0].at(0) << endl;
+	//~ cout << contenu[2][0].at(1) << endl;
+	//~ cout << contenu[0][0].at(2) << endl;
+
+
+	
 	return *this;
 }
 
 ostream& Construction::afficher(ostream& sortie) const{
-	
-	for (unsigned int i = 0; i < contenu.size(); i++){
-		cout << "i " << i;
-		//~ cout << "couche " << i << " :" << endl;
+	for (unsigned int i = contenu.size(); i--;){
+		cout << "couche " << i << " :" << endl;
 		for (unsigned int k = 0; k < contenu[0][0].size(); k++){
-			cout << "k " << k;
 			sortie << contenu[i][0].at(k);
 		}
 		cout << endl;
@@ -136,7 +162,7 @@ int main()
 	Construction toit(toitM);
 	//~ cout << test << endl;
 	mur_construction^=toitM;
-	//~ cout << mur_construction << endl;
+	cout << mur_construction << endl;
   //~ unsigned int largeur(4);
   //~ unsigned int profondeur(3);
   //~ unsigned int hauteur(3); // sans le toit
