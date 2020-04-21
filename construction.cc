@@ -67,7 +67,8 @@ class Construction
 const Construction Construction::operator^=(Construction const& c) {
 	for (size_t i = 0; i < c.contenu.size(); i++){
 		contenu.push_back(c.contenu.at(i));
-	}
+	//~ }
+}
 	
 	//~ contenu.resize(c.contenu.size() + contenu.size(), 
 	//~ vector<vector<Brique>>(c.contenu[0].size() + contenu[0].size()));
