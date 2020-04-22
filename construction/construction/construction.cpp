@@ -66,7 +66,8 @@ public:
 };
 
 const Construction Construction::operator^=(Construction const& c) {
-	for (size_t i = 0; i < c.contenu.size(); i++) {
+	size_t limite_i = c.contenu.size();
+	for (size_t i = 0; i < limite_i; i++) {
 		contenu.push_back(c.contenu.at(i));
 	}
 
@@ -76,6 +77,8 @@ const Construction Construction::operator^=(Construction const& c) {
 const Construction Construction::operator-=(Construction const& c) {
 	if (c.contenu.size() >= contenu.size()) {
 		for (size_t i = 0; i < c.contenu.size(); i++) {
+			if (i >= contenu.size())
+				continue;
 			for (size_t j = 0; j < c.contenu[i].size(); j++) {
 				contenu[i].push_back(c.contenu[i].at(j));
 			}
@@ -88,8 +91,12 @@ const Construction Construction::operator-=(Construction const& c) {
 const Construction Construction::operator+=(Construction const& c) {
 	if (c.contenu.size() >= contenu.size()) {
 		for (size_t i = 0; i < c.contenu.size(); i++) {
+			if (i >= contenu.size())
+				continue;
+			if (contenu[i].size() > c.contenu[i].size())
+				continue;
 			for (size_t j = 0; j < c.contenu[i].size(); j++) {
-				if (c.contenu[i].size() < contenu[i].size())
+				if (j >= c.contenu[i].size() - 1)
 					continue;
 				for (size_t k = 0; k < c.contenu[i][j].size(); k++) {
 					contenu[i][j].push_back(c.contenu[i][j].at(k));
@@ -111,7 +118,6 @@ ostream& Construction::afficher(ostream& sortie) const {
 			cout << endl;
 		}
 	}
-	//cout << contenu[4][2][3] << endl;
 
 	return sortie;
 }
@@ -141,14 +147,6 @@ const Construction operator*(unsigned int n, Construction const& a)
 	b.contenu = a.contenu;
 	b.contenu[0] = a.contenu[0];
 	b.contenu[0][0] = a.contenu[0][0];
-	//for (size_t i = a.contenu.size(); i--;) {
-	//	for (size_t j = 0; j < a.contenu[i].size(); j++) {
-	//		for (size_t k = 0; k < a.contenu[i][j].size(); k++) {
-	//			b.contenu[i][j][k] = a.contenu[i][j][k];
-	//		}
-	//	}
-	//}
-
 
 	for (unsigned int i = 0; i < n - 1; i++) {
 		b += a;
@@ -163,13 +161,6 @@ const Construction operator/(unsigned int n, Construction const& a)
 	b.contenu = a.contenu;
 	b.contenu[0] = a.contenu[0];
 	b.contenu[0][0] = a.contenu[0][0];
-	//for (size_t i = a.contenu.size(); i--;) {
-	//	for (size_t j = 0; j < a.contenu[i].size(); j++) {
-	//		for (size_t k = 0; k < a.contenu[i][j].size(); k++) {
-	//			b.contenu[i][j][k] = a.contenu[i][j][k];
-	//		}
-	//	}
-	//}
 
 	for (unsigned int i = 0; i < n - 1; i++) {
 		b ^= a;
@@ -209,9 +200,16 @@ int main()
   unsigned int profondeur(3);
   unsigned int hauteur(3); // sans le toit
 
+  Construction gauche(3 * mur);
+  cout << gauche << endl;
+  Construction droite(2 / (3 % toitM));
+  cout << droite << endl;
+  gauche = gauche + droite;
+  cout << gauche << endl;
+
   // on construit les murs
   Construction maison( hauteur / ( profondeur % (largeur * mur) ) );
-
+  //cout << maison << endl;
   // on construit le toit
   Construction toit(profondeur % ( toitG + 2*toitM + toitD ));
   toit ^= profondeur % (vide + toitG + toitD);
