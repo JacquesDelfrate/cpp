@@ -66,7 +66,8 @@ public:
 };
 
 const Construction Construction::operator^=(Construction const& c) {
-	for (size_t i = 0; i < c.contenu.size(); i++) {
+	size_t limite_i = c.contenu.size();
+	for (size_t i = 0; i < limite_i; i++) {
 		contenu.push_back(c.contenu.at(i));
 	}
 
@@ -76,6 +77,8 @@ const Construction Construction::operator^=(Construction const& c) {
 const Construction Construction::operator-=(Construction const& c) {
 	if (c.contenu.size() >= contenu.size()) {
 		for (size_t i = 0; i < c.contenu.size(); i++) {
+			if (i >= contenu.size())
+				continue;
 			for (size_t j = 0; j < c.contenu[i].size(); j++) {
 				contenu[i].push_back(c.contenu[i].at(j));
 			}
@@ -88,8 +91,12 @@ const Construction Construction::operator-=(Construction const& c) {
 const Construction Construction::operator+=(Construction const& c) {
 	if (c.contenu.size() >= contenu.size()) {
 		for (size_t i = 0; i < c.contenu.size(); i++) {
+			if (i >= contenu.size())
+				continue;
+			if (contenu[i].size() > c.contenu[i].size())
+				continue;
 			for (size_t j = 0; j < c.contenu[i].size(); j++) {
-				if (c.contenu[i].size() < contenu[i].size())
+				if (j >= contenu[i].size())
 					continue;
 				for (size_t k = 0; k < c.contenu[i][j].size(); k++) {
 					contenu[i][j].push_back(c.contenu[i][j].at(k));

@@ -96,7 +96,7 @@ const Construction Construction::operator+=(Construction const& c) {
 			if (contenu[i].size() > c.contenu[i].size())
 				continue;
 			for (size_t j = 0; j < c.contenu[i].size(); j++) {
-				if (j >= c.contenu[i].size() - 1)
+				if (j >= contenu[i].size())
 					continue;
 				for (size_t k = 0; k < c.contenu[i][j].size(); k++) {
 					contenu[i][j].push_back(c.contenu[i][j].at(k));
@@ -200,7 +200,7 @@ int main()
   unsigned int profondeur(3);
   unsigned int hauteur(3); // sans le toit
 
-  Construction gauche(3 * mur);
+  Construction gauche(2 % mur);
   cout << gauche << endl;
   Construction droite(2 / (3 % toitM));
   cout << droite << endl;
