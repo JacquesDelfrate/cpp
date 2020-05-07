@@ -4,9 +4,9 @@
 
 using namespace std;
 
-/*****************************************************
-  * Compléter le code à partir d'ici
- *****************************************************/
+///*****************************************************
+//  * Compléter le code à partir d'ici
+// *****************************************************/
 class Produit 
 {
   protected:
@@ -15,19 +15,36 @@ class Produit
 
   public:
       Produit(string nom, string unite = "") :m_nom(nom), m_unite(unite) {};
+      virtual ~Produit() {};
 
       string getNom() const;
       string getUnite() const;
 
-      string toString() const;
+      virtual const double quantiteTotale(const string& nomProduit) const;
 
-      virtual const Produit* adapter(double n) const {
-          return this;
-      }
+      virtual const string toString() const;
+
+      virtual const Produit* adapter(double n) const;
 };
 string Produit::getNom() const { return m_nom; }
+
 string Produit::getUnite() const { return m_unite; }
-string Produit::toString() const { return getNom(); }
+
+const string Produit::toString() const { return m_nom; }
+
+const double Produit::quantiteTotale(const string& nomProduit) const
+{
+    if (this->getNom() == nomProduit)
+        return 1.0;
+
+    return 0.0;
+}
+
+const Produit* Produit::adapter(double n) const
+{
+    //return new Produit(this->getNom(), this->getUnite());
+    return this;
+}
 
 /* ----- Ingredient -----*/
 class Ingredient
@@ -38,10 +55,12 @@ public:
     double getQuantite() const;
     const Produit& getProduit() const;
 
-    void descriptionAdaptee();
+    string descriptionAdaptee() const;
+
+    double quantiteTotale(const string& nomProduit);
 
 private:
-    Produit m_produit;
+    const Produit& m_produit;
     double m_quantite;
 
 };
@@ -49,12 +68,33 @@ double Ingredient::getQuantite() const { return m_quantite; }
 
 const Produit& Ingredient::getProduit() const { return m_produit; }
 
-void Ingredient::descriptionAdaptee()
+string Ingredient::descriptionAdaptee() const
 {
-    const Produit* ptr = m_produit.adapter(m_quantite);
+    const Produit* produit = m_produit.adapter(m_quantite);
 
-    //string str = to_string(getQuantite()) << " " << getProduit().getUnite() << " de " << ptr->toString();
-    //cout << getQuantite() << " " << getProduit().getUnite() << " de " << getProduit().toString() << endl;
+    string str;
+    str = to_string(getQuantite()) + " " + getProduit().getUnite() + " de " + produit->toString(); 
+    
+    //delete produit;
+
+    return str;
+}
+
+double Ingredient::quantiteTotale(const string& nomProduit)
+{
+    if (this->getProduit().getNom() == nomProduit)
+    {
+        return this->getQuantite();
+    }
+    else if (this->getProduit().getUnite() == "portion(s)")
+    {
+        const Produit* produit = this->getProduit().adapter(this->getQuantite());
+        double ct = produit->quantiteTotale(nomProduit);
+
+        return ct;
+    }
+        
+    return 0.0;
 }
 /* ----------------------------------*/
 
@@ -66,25 +106,25 @@ public:
 
     void ajouter(const Produit& p, double quantite);
 
-    Recette adapter(double n);
+    Recette adapter(double n) const;
 
-    string toString();
+    string toString() const;
 
-    double quantiteTotale(string nom) const;
+    double quantiteTotale(string nomProduit) const;
 
 private:
     string m_nom;
     double nbFois_;
 
     vector<Ingredient> liste;
-
 };
+
 void Recette::ajouter(const Produit& p, double quantite)
 {
-    liste.push_back(Ingredient(p, quantite * nbFois_));
+    liste.push_back(Ingredient(p, quantite * nbFois_));  
 }
 
-Recette Recette::adapter(double n)
+Recette Recette::adapter(double n) const
 {
     Recette recette_adapte(m_nom, nbFois_ * n);
 
@@ -96,27 +136,31 @@ Recette Recette::adapter(double n)
     return recette_adapte;
 }
 
-string Recette::toString() 
+string Recette::toString() const
 {
-    string str = "  Recette " + m_nom + " x " + to_string(nbFois_) + " :";
+    stringstream ss;
+    ss << "  Recette \"" << this->m_nom << "\" x " << nbFois_ << ": ";
 
     int nbIngredient = 0;
-    for (auto ingredient : liste)
+    for (auto ingredient : this->liste)
     {
         nbIngredient++;
-        str = str + "\n  " + to_string(nbIngredient) + ". " + to_string(ingredient.getQuantite()) + " " + ingredient.getProduit().getUnite() + " de " + ingredient.getProduit().toString();
+        ss << "\n  " << to_string(nbIngredient) << ". " << ingredient.descriptionAdaptee();
     }
 
-    return str;
+    return ss.str();
 }
 
-double Recette::quantiteTotale(string nom) const {
-    for (auto const i : liste) {
-        if (i.getProduit().getNom() == nom) {
-            return i.getQuantite();
-        }
+double Recette::quantiteTotale(string nomProduit) const
+{
+    double m_cntProduit = 0;
+
+    for (auto ingredient : liste)
+    {
+        m_cntProduit = m_cntProduit + ingredient.quantiteTotale(nomProduit);
     }
-    return 0.0;
+
+    return m_cntProduit;
 }
 /* -----------------------------------*/
 
@@ -127,52 +171,57 @@ public:
     ProduitCuisine(string nom, string unite = "portion(s)") : Produit(nom, unite), m_recette(nom), m_nom(nom) {};
 
     void ajouterARecette(const Produit& produit, double quantite);
-    void ajouterARecette(const ProduitCuisine& produitCuisine, double quantite);
 
-    const ProduitCuisine* adapter(double n);
+    const ProduitCuisine* adapter(double n) const;
 
-    string toString();
+    const string toString() const;   
+
+    const double quantiteTotale(const string& nomProduit) const;
+
+    Recette m_recette;
 
 private:
     string m_nom;
-    Recette m_recette;
+    
 };
+
+const double ProduitCuisine::quantiteTotale(const string& nomProduit) const
+{
+    if (this->Produit::quantiteTotale(nomProduit) > 0)
+        return 1.0;
+    
+    return this->m_recette.quantiteTotale(nomProduit);
+}
 
 void ProduitCuisine::ajouterARecette(const Produit& produit, double quantite)
 {
     this->m_recette.ajouter(produit, quantite);
 }
 
-void ProduitCuisine::ajouterARecette(const ProduitCuisine& produitCuisine, double quantite)
-{  
-    this->m_recette.ajouter(produitCuisine, quantite);
+const ProduitCuisine* ProduitCuisine::adapter(double n) const
+{
+    ProduitCuisine* newProduitCuisine = new ProduitCuisine(m_nom);
+    newProduitCuisine->m_recette = this->m_recette.adapter(n);
+
+    return newProduitCuisine;
 }
 
-const ProduitCuisine* ProduitCuisine::adapter(double n)
+const string ProduitCuisine::toString() const
 {
-    ProduitCuisine newProduitCuisine(m_nom);
-    newProduitCuisine.m_recette = m_recette.adapter(n);
-
-    return &newProduitCuisine;
-}
-
-string ProduitCuisine::toString()
-{
-    string str = Produit::toString() + "\n" + m_recette.toString();
-    return str;
+    stringstream ss;
+    ss << Produit::toString() << "\n" << m_recette.toString();
+    return ss.str();
 }
 
 
  /*******************************************
   * Ne rien modifier après cette ligne.
   *******************************************/
-//void afficherQuantiteTotale(const Recette& recette, const Produit& produit)
-void afficherQuantiteTotale(const Produit& produit)
+void afficherQuantiteTotale(const Recette& recette, const Produit& produit)
 {
     string nom = produit.getNom();
-    //cout << "Cette recette contient " << recette.quantiteTotale(nom)
-    //    << " " << produit.getUnite() << " de " << nom << endl;
-    cout << "Cette recette contient " << " " << produit.getUnite() << " de " << nom << endl;
+    cout << "Cette recette contient " << recette.quantiteTotale(nom)
+        << " " << produit.getUnite() << " de " << nom << endl;
 }
 
 int main()
@@ -192,11 +241,11 @@ int main()
     glacage.ajouterARecette(beurre, 25);
     glacage.ajouterARecette(sucreGlace, 100);
     cout << glacage.toString() << endl;
-
+    
     ProduitCuisine glacageParfume("glaçage au chocolat parfumé");
     // besoin de 1 portions de glaçage au chocolat et de 2 gouttes
     // d'extrait d'amandes pour 1 portion de glaçage parfumé
-
+    
     glacageParfume.ajouterARecette(extraitAmandes, 2);
     glacageParfume.ajouterARecette(glacage, 1);
     cout << glacageParfume.toString() << endl;
@@ -210,7 +259,7 @@ int main()
 
     cout << "===  Recette finale  =====" << endl;
     cout << recette.toString() << endl;
-    //afficherQuantiteTotale(recette, beurre);
+    afficherQuantiteTotale(recette, beurre);
     cout << endl;
 
     //// double recette
@@ -218,15 +267,48 @@ int main()
     cout << "===  Recette finale x 2 ===" << endl;
     cout << doubleRecette.toString() << endl;
 
-    //afficherQuantiteTotale(doubleRecette, beurre);
-    //afficherQuantiteTotale(doubleRecette, oeufs);
-    //afficherQuantiteTotale(doubleRecette, extraitAmandes);
-    //afficherQuantiteTotale(doubleRecette, glacage);
-    //cout << endl;
+    afficherQuantiteTotale(doubleRecette, beurre);
+    afficherQuantiteTotale(doubleRecette, oeufs);
+    afficherQuantiteTotale(doubleRecette, extraitAmandes);
+    afficherQuantiteTotale(doubleRecette, glacage);
+    cout << endl;
 
-    //cout << "===========================\n" << endl;
-    //cout << "Vérification que le glaçage n'a pas été modifié :\n";
-    //cout << glacage.toString() << endl;
+    cout << "===========================\n" << endl;
+    cout << "Vérification que le glaçage n'a pas été modifié :\n";
+    cout << glacage.toString() << endl;
 
     return 0;
 }
+
+//class Animal {
+//
+//public:
+//
+//	string to_string() {
+//
+//		return "Animal";
+//	}
+//
+//};
+//
+//class Dragon : public Animal {
+//
+//public:
+//
+//	string to_string() {
+//
+//		return "Cracheur de feu";
+//	}
+//
+//};
+//
+//int main() {
+//
+//	Dragon d;
+//
+//	Animal a(d);
+//
+//	cout << a.to_string() << endl;
+//
+//	return 0;
+//}

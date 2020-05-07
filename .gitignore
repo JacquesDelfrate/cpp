@@ -77,3 +77,7 @@ cuisine/cuisine/x64/Debug/vc142.pdb
 cuisine/x64/Debug/cuisine.exe
 cuisine/x64/Debug/cuisine.ilk
 cuisine/x64/Debug/cuisine.pdb
+cuisine/cuisine/x64/Debug/cuisine.vcxproj.FileListAbsolute.txt
+cuisine/cuisine/x64/Debug/cuisine.Build.CppClean.log
+cuisine/.vs/cuisine/v16/ipch/AutoPCH/23f0c8c60276fdf3/BATEAUX.ipch
+restaurant.exe

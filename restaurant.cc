@@ -7,6 +7,213 @@ using namespace std;
 /*****************************************************
   * Compléter le code à partir d'ici
  *****************************************************/
+class Produit 
+{
+  protected:
+      string m_nom;
+      string m_unite;
+
+  public:
+      Produit(string nom, string unite = "") :m_nom(nom), m_unite(unite) {};
+      virtual ~Produit() {};
+
+      string getNom() const;
+      string getUnite() const;
+
+      virtual const double quantiteTotale(const string& nomProduit) const;
+
+      virtual const string toString() const;
+
+      virtual const Produit* adapter(double n) const;
+};
+string Produit::getNom() const { return m_nom; }
+
+string Produit::getUnite() const { return m_unite; }
+
+const string Produit::toString() const { return m_nom; }
+
+const double Produit::quantiteTotale(const string& nomProduit) const
+{
+    if (this->getNom() == nomProduit)
+        return 1.0;
+
+    return 0.0;
+}
+
+const Produit* Produit::adapter(double n) const
+{
+    //return new Produit(this->getNom(), this->getUnite());
+    return this;
+}
+
+/* ----- Ingredient -----*/
+class Ingredient
+{
+public:
+    Ingredient(const Produit& produit, double quantite) :m_produit(produit), m_quantite(quantite) {};
+    
+    double getQuantite() const;
+    const Produit& getProduit() const;
+
+    string descriptionAdaptee() const;
+
+    double quantiteTotale(const string& nomProduit);
+
+private:
+    const Produit& m_produit;
+    double m_quantite;
+
+};
+double Ingredient::getQuantite() const { return m_quantite; }
+
+const Produit& Ingredient::getProduit() const { return m_produit; }
+
+string Ingredient::descriptionAdaptee() const
+{
+    const Produit* produit = m_produit.adapter(m_quantite);
+
+    string str;
+    str = to_string(getQuantite()) + " " + getProduit().getUnite() + " de " + produit->toString(); 
+    
+    //delete produit;
+
+    return str;
+}
+
+double Ingredient::quantiteTotale(const string& nomProduit)
+{
+    if (this->getProduit().getNom() == nomProduit)
+    {
+        return this->getQuantite();
+    }
+    else if (this->getProduit().getUnite() == "portion(s)")
+    {
+        const Produit* produit = this->getProduit().adapter(this->getQuantite());
+        double ct = produit->quantiteTotale(nomProduit);
+
+        return ct;
+    }
+        
+    return 0.0;
+}
+/* ----------------------------------*/
+
+ /* ----- Recette -----*/
+class Recette
+{
+public:
+    Recette(string nom, double nbFois_ = 1.0f) :m_nom(nom), nbFois_(nbFois_) {};
+
+    void ajouter(const Produit& p, double quantite);
+
+    Recette adapter(double n) const;
+
+    string toString() const;
+
+    double quantiteTotale(string nomProduit) const;
+
+private:
+    string m_nom;
+    double nbFois_;
+
+    vector<Ingredient> liste;
+};
+
+void Recette::ajouter(const Produit& p, double quantite)
+{
+    liste.push_back(Ingredient(p, quantite * nbFois_));  
+}
+
+Recette Recette::adapter(double n) const
+{
+    Recette recette_adapte(m_nom, nbFois_ * n);
+
+    for (auto ingredient : liste)
+    {
+        recette_adapte.ajouter(ingredient.getProduit(), ingredient.getQuantite());
+    }
+
+    return recette_adapte;
+}
+
+string Recette::toString() const
+{
+    stringstream ss;
+    ss << "  Recette \"" << this->m_nom << "\" x " << nbFois_ << ": ";
+
+    int nbIngredient = 0;
+    for (auto ingredient : this->liste)
+    {
+        nbIngredient++;
+        ss << "\n  " << to_string(nbIngredient) << ". " << ingredient.descriptionAdaptee();
+    }
+
+    return ss.str();
+}
+
+double Recette::quantiteTotale(string nomProduit) const
+{
+    double m_cntProduit = 0;
+
+    for (auto ingredient : liste)
+    {
+        m_cntProduit = m_cntProduit + ingredient.quantiteTotale(nomProduit);
+    }
+
+    return m_cntProduit;
+}
+/* -----------------------------------*/
+
+/* ----- ProduitCuisine -----*/
+class ProduitCuisine : public Produit
+{
+public:
+    ProduitCuisine(string nom, string unite = "portion(s)") : Produit(nom, unite), m_recette(nom), m_nom(nom) {};
+
+    void ajouterARecette(const Produit& produit, double quantite);
+
+    const ProduitCuisine* adapter(double n) const;
+
+    const string toString() const;   
+
+    const double quantiteTotale(const string& nomProduit) const;
+
+    Recette m_recette;
+
+private:
+    string m_nom;
+    
+};
+
+const double ProduitCuisine::quantiteTotale(const string& nomProduit) const
+{
+    if (this->Produit::quantiteTotale(nomProduit) > 0)
+        return 1.0;
+    
+    return this->m_recette.quantiteTotale(nomProduit);
+}
+
+void ProduitCuisine::ajouterARecette(const Produit& produit, double quantite)
+{
+    this->m_recette.ajouter(produit, quantite);
+}
+
+const ProduitCuisine* ProduitCuisine::adapter(double n) const
+{
+    ProduitCuisine* newProduitCuisine = new ProduitCuisine(m_nom);
+    newProduitCuisine->m_recette = this->m_recette.adapter(n);
+
+    return newProduitCuisine;
+}
+
+const string ProduitCuisine::toString() const
+{
+    stringstream ss;
+    ss << Produit::toString() << "\n" << m_recette.toString();
+    return ss.str();
+}
+
+
 
 /*******************************************
  * Ne rien modifier après cette ligne.
