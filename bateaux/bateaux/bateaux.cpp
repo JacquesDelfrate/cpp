@@ -37,7 +37,7 @@ public:
     Navire(int x, int y, Pavillon pavillon) : position_(x, y), pavillon_(pavillon) {};
     virtual ~Navire() {};
 
-    Coordonnees position();
+    Coordonnees position() const;
 
     void avancer(int de_x, int de_y);
     void renflouer();
@@ -45,17 +45,26 @@ public:
     virtual ostream& afficher(ostream& sortie) const;
     virtual void attaque(Navire& autre) = 0;
     virtual void est_touche() = 0;
-    virtual void replique(Navire &autre) = 0;
+    virtual void replique(Navire& autre) = 0;
+
+    double distance(Navire const& autre) const;
 
     void rencontrer(Navire& autre);
 
     const int rayon_rencontre = 10;
 
 protected:
+    Coordonnees position_;
     Pavillon pavillon_;
     Etat etat_ = Intact;
-    Coordonnees position_;
 };
+
+double Navire::distance(Navire const& autre) const
+{
+    double dist = sqrt(pow((position_.x() - autre.position_.x()), 2) + pow((position_.y() - autre.position_.y()), 2));
+
+    return dist;
+}
 
 void Coordonnees::operator+=(Coordonnees const& autre)
 {
@@ -63,7 +72,7 @@ void Coordonnees::operator+=(Coordonnees const& autre)
     this->y_ += autre.y();
 }
 
-ostream& operator<<(ostream& sortie, Navire const& n) 
+ostream& operator<<(ostream& sortie, Navire const& n)
 {
     return n.afficher(cout);
 }
@@ -75,11 +84,11 @@ ostream& operator<<(ostream&, Coordonnees const& c)
 
 ostream& operator<<(ostream&, Pavillon const& p)
 {
-     if (p == JollyRogers)
+    if (p == Pavillon::JollyRogers)
         return cout << "pirate";
-    else if (p == CompagnieDuSenegal)
+    else if (p == Pavillon::CompagnieDuSenegal)
         return cout << "français";
-    else if (p == CompagnieDOstende)
+    else if (p == Pavillon::CompagnieDOstende)
         return cout << "autrichien";
 
     return cout << "pavillon inconnu";
@@ -87,28 +96,25 @@ ostream& operator<<(ostream&, Pavillon const& p)
 
 ostream& operator<<(ostream&, Etat const& e)
 {
-    if (e == Intact)
+    if (e == Etat::Intact)
         return cout << "intact";
-    else if (e == Endommage)
+    else if (e == Etat::Endommage)
         return cout << "ayant subi des dommages";
-    else if (e == Coule)
+    else if (e == Etat::Coule)
         return cout << "coulé";
 
     return cout << "état inconnu";
 }
 
-double distance(const Coordonnees& c1, const Coordonnees& c2)
-{
-    return sqrt(pow((c1.x() - c2.x()), 2) + pow((c1.y() - c2.y()), 2));
+double distance(Coordonnees const& a, Coordonnees const& b) {
+    return sqrt(sq(a.x() - b.x()) + sq(a.y() - b.y()));
 }
 
-double distance(Navire& v1, Navire& v2)
-{
-
-    return distance(v1.position(), v2.position());
+double distance(Navire const& a, Navire const& b) {
+    return distance(a.position(), b.position());
 }
 
-Coordonnees Navire::position()
+Coordonnees Navire::position() const
 {
     return this->position_;
 }
@@ -134,13 +140,12 @@ ostream& Navire::afficher(ostream& sortie) const
     return sortie;
 }
 
-void Navire::rencontrer(Navire& autre) 
+void Navire::rencontrer(Navire& autre)
 {
-    if (this->etat_ != Coule && autre.etat_ != Coule && distance(*this, autre) < rayon_rencontre && pavillon_ != autre.pavillon_)
+    if (this->etat_ != Coule && autre.etat_ != Coule && this->distance(autre) < rayon_rencontre && this->pavillon_ != autre.pavillon_)
     {
         this->attaque(autre);
         autre.replique(*this);
-
     }
 }
 
@@ -159,16 +164,23 @@ public:
 
 void Pirate::attaque(Navire& autre)
 {
-    cout << "A l'abordage !" << endl;
-    autre.est_touche();
+    if (this->etat_ != Coule)
+    {
+        cout << "A l'abordage !" << endl;
+        autre.est_touche();
+    }
 }
 
 void Pirate::est_touche()
 {
     if (this->etat_ == Intact)
+    {
         this->etat_ = Endommage;
+    }
     else if (this->etat_ == Endommage)
-        this->etat_ == Coule;
+    {
+        this->etat_ = Coule;
+    }
 }
 
 void Pirate::replique(Navire& autre)
@@ -182,9 +194,16 @@ void Pirate::replique(Navire& autre)
 
 ostream& Pirate::afficher(ostream& sortie) const
 {
-    sortie << "bateau marchand";
-    return Navire::afficher(sortie);
+    sortie << "bateau pirate" << " en " << this->position_ << " battant pavillon " << this->pavillon_ << ", " << this->etat_;
+
+    return sortie;
 }
+
+//ostream& Pirate::afficher(ostream& sortie) const
+//{
+//    sortie << "bateau pirate";
+//    return Navire::afficher(sortie);
+//}
 
 class Marchand : virtual public Navire
 {
@@ -214,7 +233,10 @@ void Marchand::est_touche()
 
 void Marchand::attaque(Navire& autre)
 {
-    cout << "On vous aura ! (insultes) ";
+    if (this->etat_ != Coule)
+    {
+        cout << "On vous aura ! (insultes)" << endl;
+    }
 }
 
 ostream& Marchand::afficher(ostream& sortie) const
@@ -269,7 +291,6 @@ int main()
 
     // Un bateau pirate 0,0
     Pirate ship1(0, 0, JollyRogers);
-    cout << ship1 << endl;
 
     // Un bateau marchand en 25,0
     Marchand ship2(25, 0, CompagnieDuSenegal);
